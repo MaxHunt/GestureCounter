@@ -27,18 +27,18 @@ var CounterZMoveText = new UI.Text({ position: new Vector2(0,125), size: new Vec
 
 //var gesture = [[{x:'',y:'',z:''},{x:'50',y:'200',z:'20',xpos:'true',xneg:'false',ypos:'true',yneg:'false',zpos:'true',zneg:'true'}]];//lower hertz Values
 //Gestures
-var shake = [[{x:null,y:null,z:null},{x:500,y:500,z:500}],[{x:null,y:null,z:null},{x:500,y:500,z:500}]];
+var shake = [[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}]];
 
-var twist = [[{x:null,y:null,z:null},{x:80,y:250,z:20}],[{x:null,y:null,z:null},{x:60,y:250,z:20}]];
+var twist = [[{x:null,y:null,z:null},{x:80,y:550,z:80}],[{x:null,y:null,z:null},{x:60,y:550,z:80}]];
 
-var xMove = [[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}]];
+var xMove = [[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}]];
 
-var yMove = [[{x:null,y:null,z:null},{x:30,y:200,z:50}],[{x:null,y:null,z:null},{x:30,y:200,z:50}]];
+var yMove = [[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}]];
 
-var zMove = [[{x:null,y:null,z:null},{x:30,y:30,z:300}],[{x:null,y:null,z:null},{x:30,y:30,z:300}]];
+var zMove = [[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}]];
 
 //Array of gestures, sorted by priority
-var gesture = [shake,twist,xMove,yMove,xMove,zMove];
+var gesture = [shake,twist,xMove,yMove,zMove];
 
 //set the accelerometer values
 Accel.config({
@@ -90,8 +90,12 @@ function onPeek(e){
    if (inWristCount === true){
       var frameArray = [];
       frameArray = arrayToFrames(e);
-      var detection,gestureNo = detectGesture(frameArray);
-      insertElements(detection,gestureNo);       
+      var detection = detectGesture(frameArray);
+      //frame of dectection
+      if (detection[0]===true){
+         console.log(JSON.stringify(frameArray));
+      }
+      insertElements(detection);       
    }
    else{
       console.log("emptyfunction");
@@ -127,10 +131,10 @@ function detectGesture(frameArray){
                 (Math.abs(frameArray[i][1].y-frameArray[i][0].y)>=gesture[k][j][1].y)&&
                 (Math.abs(frameArray[i][1].x-frameArray[i][0].x)>=gesture[k][j][1].x)){
                   if (len === j){
-                     console.log("Detection");
+                     console.log("Detection on: " +k);
                      Accel.config({subscribe: false});                  
-                     setTimeout(function(){Accel.config({subscribe: true});}, 1000);
-                     return(true,k);
+                     //setTimeout(function(){Accel.config({subscribe: true});}, 1000);
+                     return [true,k];
                   }
                   else{
                      console.log("Next Frame");
@@ -148,9 +152,9 @@ function detectGesture(frameArray){
 }
 
 //Insert onto screen
-function insertElements(detection,gestureNo) {
-   if (detection===true){
-      switch(gestureNo){
+function insertElements(detection) {
+   if (detection[0]===true){
+      switch(detection[1]){
          case 0:
             counterShake++;
             break;
@@ -160,18 +164,20 @@ function insertElements(detection,gestureNo) {
          case 2:
             counterXMove++;
             break;
-         case 4:
+         case 3:
             counterYMove++;
             break;
-         case 5:
+         case 4:
             counterZMove++;
+            break;
       }
    }
+   Accel.config({subscribe: true});
    CounterShakeText.text('Number of Shakes: ' + counterShake);
    CounterTwistText.text('Number of Twists: ' + counterTwist);
-   CounterXMoveText.text('Number of X Movements: ' + counterXMove);
-   CounterYMoveText.text('Number of Y Movements: ' + counterYMove);
-   CounterZMoveText.text('Number of Z Movements: ' + counterZMove);   
+   CounterXMoveText.text('Number of X : ' + counterXMove);
+   CounterYMoveText.text('Number of Y : ' + counterYMove);
+   CounterZMoveText.text('Number of Z : ' + counterZMove);   
    CountScreen.insert(1,CounterShakeText);
    CountScreen.insert(2,CounterTwistText);
    CountScreen.insert(3,CounterXMoveText);
