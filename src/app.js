@@ -173,11 +173,11 @@ function insertElements(detection) {
       }
    }
    Accel.config({subscribe: true});
-   CounterShakeText.text('Number of Shakes: ' + counterShake);
-   CounterTwistText.text('Number of Twists: ' + counterTwist);
-   CounterXMoveText.text('Number of X : ' + counterXMove);
-   CounterYMoveText.text('Number of Y : ' + counterYMove);
-   CounterZMoveText.text('Number of Z : ' + counterZMove);   
+   CounterShakeText.text('No. of Shakes: ' + counterShake);
+   CounterTwistText.text('No. of Twists: ' + counterTwist);
+   CounterXMoveText.text('No. of X : ' + counterXMove);
+   CounterYMoveText.text('No. of Y : ' + counterYMove);
+   CounterZMoveText.text('No. of Z : ' + counterZMove);   
    CountScreen.insert(1,CounterShakeText);
    CountScreen.insert(2,CounterTwistText);
    CountScreen.insert(3,CounterXMoveText);
