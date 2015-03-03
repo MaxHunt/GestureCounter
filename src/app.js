@@ -20,25 +20,28 @@ var CountScreen = new UI.Window();
 var TitleText = new UI.Text({ position: new Vector2(0,0), size: new Vector2(144, 168) });
 //CountersText
 var CounterShakeText = new UI.Text({ position: new Vector2(0,25), size: new Vector2(144, 168) });
-var CounterTwistText = new UI.Text({ position: new Vector2(0,50), size: new Vector2(144, 168) });
+//var CounterTwistText = new UI.Text({ position: new Vector2(0,50), size: new Vector2(144, 168) });
 var CounterXMoveText = new UI.Text({ position: new Vector2(0,75), size: new Vector2(144, 168) });
 var CounterYMoveText = new UI.Text({ position: new Vector2(0,100), size: new Vector2(144, 168) });
 var CounterZMoveText = new UI.Text({ position: new Vector2(0,125), size: new Vector2(144, 168) });
 
 //var gesture = [[{x:'',y:'',z:''},{x:'50',y:'200',z:'20',xpos:'true',xneg:'false',ypos:'true',yneg:'false',zpos:'true',zneg:'true'}]];//lower hertz Values
 //Gestures
-var shake = [[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}],[{x:null,y:null,z:null},{x:100,y:100,z:100}]];
+var shake = [[{x:3000,y:3000,z:3000},{x:100,y:100,z:100}],[{x:3000,y:3000,z:3000},{x:100,y:100,z:100}],[{x:3000,y:3000,z:3000},{x:100,y:100,z:100}],[{x:3000,y:3000,z:3000},{x:100,y:100,z:100}]];
 
-var twist = [[{x:null,y:null,z:null},{x:80,y:550,z:80}],[{x:null,y:null,z:null},{x:60,y:550,z:80}]];
+//var twist = [[{x:null,y:null,z:null},{x:80,y:550,z:80}],[{x:null,y:null,z:null},{x:60,y:550,z:80}]];
 
-var xMove = [[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}],[{x:null,y:null,z:null},{x:200,y:30,z:50}]];
+var xMove = [[{x:1000,y:200,z:200},{x:200,y:30,z:50}],[{x:1000,y:200,z:200},{x:200,y:30,z:50}],[{x:1000,y:200,z:200},{x:200,y:30,z:50}],[{x:1000,y:200,z:200},{x:200,y:30,z:50}]];
 
-var yMove = [[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}],[{x:null,y:null,z:null},{x:30,y:200,z:20}]];
+var yMove = [[{x:200,y:1000,z:200},{x:30,y:200,z:20}],[{x:200,y:1000,z:200},{x:30,y:200,z:20}],[{x:200,y:1000,z:200},{x:30,y:200,z:20}],[{x:200,y:1000,z:200},{x:30,y:200,z:20}]];
 
-var zMove = [[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}],[{x:null,y:null,z:null},{x:30,y:30,z:200}]];
+var zMove = [[{x:200,y:200,z:1000},{x:30,y:30,z:200}],[{x:200,y:200,z:1000},{x:30,y:30,z:200}],[{x:200,y:200,z:1000},{x:30,y:30,z:200}],[{x:200,y:200,z:1000},{x:30,y:30,z:200}]];
 
 //Array of gestures, sorted by priority
-var gesture = [shake,twist,xMove,yMove,zMove];
+var gesture = [shake,xMove,yMove,zMove];
+
+var timeOfFrame = 0;
+var timeDifference = 5000;
 
 //set the accelerometer values
 Accel.config({
@@ -48,7 +51,7 @@ Accel.config({
 });
 
 var counterShake = 0;
-var counterTwist = 0;
+//var counterTwist = 0;
 var counterXMove = 0;
 var counterYMove = 0;
 var counterZMove = 0;
@@ -76,7 +79,7 @@ function onClick(e) {
    CountScreen.insert(0,TitleText);
    console.log("Title text added");
    CountScreen.show();
-   CountScreen.on('click','back',onAccelBack);   
+   CountScreen.on('click','back',onAccelBack);
    CountScreen.on('accelData', onPeek);        
 }
 //Close Screen and Stop loop
@@ -86,16 +89,18 @@ function onAccelBack(){
    CountScreen.hide();   
 }
 //Get Values for Acelerometer
-function onPeek(e){   
+function onPeek(e){  
    if (inWristCount === true){
       var frameArray = [];
       frameArray = arrayToFrames(e);
-      var detection = detectGesture(frameArray);
-      //frame of dectection
-      if (detection[0]===true){
-         console.log(JSON.stringify(frameArray));
-      }
-      insertElements(detection);       
+      if (timeOfFrame===0||frameArray[0][0].time - timeOfFrame >= timeDifference){
+         var detection = detectGesture(frameArray);
+         //frame of dectection
+         if (detection[0]===true){
+            console.log(JSON.stringify(frameArray));
+         }
+            insertElements(detection);   
+      }    
    }
    else{
       console.log("emptyfunction");
@@ -127,13 +132,18 @@ function detectGesture(frameArray){
          //console.log("else");
          for(var k=0, overall = gesture.length-1; k <= overall; k++){
             for (var j=0, len = gesture[k].length-1; j <= len; j++){
-               if ((Math.abs(frameArray[i][1].z-frameArray[i][0].z)>=gesture[k][j][1].z)&&
+               if (((Math.abs(frameArray[i][1].z-frameArray[i][0].z)>=gesture[k][j][1].z)&&
                 (Math.abs(frameArray[i][1].y-frameArray[i][0].y)>=gesture[k][j][1].y)&&
-                (Math.abs(frameArray[i][1].x-frameArray[i][0].x)>=gesture[k][j][1].x)){
+                (Math.abs(frameArray[i][1].x-frameArray[i][0].x)>=gesture[k][j][1].x))&&
+                ((Math.abs(frameArray[i][0].z-frameArray[i][0].z)<=gesture[k][j][0].z)&&
+                (Math.abs(frameArray[i][0].y-frameArray[i][0].y)<=gesture[k][j][0].y)&&
+                (Math.abs(frameArray[i][0].x-frameArray[i][0].x)<=gesture[k][j][0].x))){
                   if (len === j){
                      console.log("Detection on: " +k);
                      Accel.config({subscribe: false});                  
-                     //setTimeout(function(){Accel.config({subscribe: true});}, 1000);
+                     //setTimeout(function() {return function () {Accel.config({subscribe: true});};}, 10000);
+                     console.log(i-j);
+                     timeOfFrame = frameArray[i-j][0].time;
                      return [true,k];
                   }
                   else{
@@ -159,27 +169,24 @@ function insertElements(detection) {
             counterShake++;
             break;
          case 1:
-            counterTwist++;
-            break;
-         case 2:
             counterXMove++;
             break;
-         case 3:
+         case 2:
             counterYMove++;
             break;
-         case 4:
+         case 3:
             counterZMove++;
             break;
       }
    }
    Accel.config({subscribe: true});
    CounterShakeText.text('No. of Shakes: ' + counterShake);
-   CounterTwistText.text('No. of Twists: ' + counterTwist);
+   //CounterTwistText.text('No. of Twists: ' + counterTwist);
    CounterXMoveText.text('No. of X : ' + counterXMove);
    CounterYMoveText.text('No. of Y : ' + counterYMove);
    CounterZMoveText.text('No. of Z : ' + counterZMove);   
    CountScreen.insert(1,CounterShakeText);
-   CountScreen.insert(2,CounterTwistText);
+   //CountScreen.insert(2,CounterTwistText);
    CountScreen.insert(3,CounterXMoveText);
    CountScreen.insert(4,CounterYMoveText);
    CountScreen.insert(5,CounterZMoveText);
